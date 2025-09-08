@@ -1,0 +1,22 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Django
+db.sqlite3
+*.log
+*.pot
+*.mo
+
+# Poetry
+.poetry/
+.env
+*.env
+
+# VS Code
+.vscode/
+
+# Ignore tudo fora do projeto
+../*
