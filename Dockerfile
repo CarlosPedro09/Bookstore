@@ -3,7 +3,7 @@
 # =========================
 FROM python:3.13-slim AS builder
 
-# Variáveis de ambiente
+# Variáveis de ambiente do Python e Poetry
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN pip install --upgrade pip && pip install poetry
 
 # Copiar arquivos de configuração do Poetry
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock* ./
 
 # Instalar dependências do projeto (sem instalar o root)
 RUN poetry install --no-root --without dev
@@ -35,7 +35,7 @@ RUN poetry install --no-root --without dev
 # =========================
 FROM python:3.13-slim AS runtime
 
-# Variáveis de ambiente
+# Variáveis de ambiente do Django e do venv
 ENV VENV_PATH="/opt/pysetup/.venv" \
     PATH="/opt/pysetup/.venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=bookstore.settings
@@ -52,6 +52,7 @@ COPY . .
 # Expor porta do Django
 EXPOSE 8000
 
+# Garantir que o Django encontre a aplicação
 ENV PYTHONPATH=/app/bookstore
 
 # Rodar servidor Django

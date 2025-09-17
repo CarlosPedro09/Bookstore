@@ -16,6 +16,7 @@ Including another URLconf
 """
 
 import debug_toolbar
+
 # from bookstore import views
 from django.contrib import admin
 from django.urls import path, re_path, include
