@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:15-alpine
@@ -9,8 +11,8 @@ services:
       POSTGRES_USER: bookstore_dev
       POSTGRES_PASSWORD: bookstore_dev
       POSTGRES_DB: bookstore_dev_db
-    networks:
-      - backend  
+      # Garante que conexões externas usem senha md5
+      # POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
 
   web:
     build:
@@ -18,18 +20,14 @@ services:
       target: runtime
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/app
+      - app_data:/app
     ports:
       - "8000:8000"
     env_file:
       - .env.dev
-    networks:
-      - backend  
     depends_on:
       - db
-networks:
-  backend:
-    driver: bridge
-    
+
 volumes:
   postgres_data:
+  app_data:
