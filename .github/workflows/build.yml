@@ -1,11 +1,14 @@
-name: Python Django with Docker
+name: Python application
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:15-alpine
@@ -22,7 +25,8 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -42,8 +46,13 @@ jobs:
             sleep 2
           done
 
+      - name: Set environment variables
+        run: |
+          echo "DJANGO_SETTINGS_MODULE=bookstore.settings" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://bookstore_dev:bookstore_dev@localhost:5432/bookstore_dev_db" >> $GITHUB_ENV
+
       - name: Run Django Migrations
         run: poetry run python manage.py migrate
 
-      - name: Run Tests
+      - name: Run Django Tests
         run: poetry run python manage.py test
