@@ -1,27 +1,31 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
-
 import git
+import os
 
 
 @csrf_exempt
 def update(request):
+    """Webhook do GitHub para atualizar o código no servidor (git pull)."""
     if request.method == "POST":
-        '''
-        pass the path of the diectory where your project will be
-        stored on PythonAnywhere in the git.Repo() as parameter.
-        Here the name of my directory is "test.pythonanywhere.com"
-        '''
-        repo = git.Repo('/home/drsantos20/bookstore')
-        origin = repo.remotes.origin
+        try:
+            # Ajuste o caminho para o diretório correto do seu projeto
+            repo_dir = "/home/Carlos09/Bookstore"
+            if os.path.exists(repo_dir):
+                repo = git.Repo(repo_dir)
+                origin = repo.remotes.origin
+                origin.pull()
+                return HttpResponse("✅ Código atualizado com sucesso no PythonAnywhere.")
+            else:
+                return HttpResponse("❌ Diretório do repositório não encontrado.", status=500)
+        except Exception as e:
+            return HttpResponse(f"⚠️ Erro ao atualizar: {str(e)}", status=500)
 
-        origin.pull()
-        return HttpResponse("Updated code on PythonAnywhere")
-    else:
-        return HttpResponse("Couldn't update the code on PythonAnywhere")
+    return HttpResponse("Método não permitido. Use POST.", status=405)
 
 
 def hello_world(request):
-  template = loader.get_template('hello_world.html')
-  return HttpResponse(template.render())
+    """Página de teste simples."""
+    template = loader.get_template("hello_world.html")
+    return HttpResponse(template.render({}, request))
